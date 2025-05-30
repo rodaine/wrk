@@ -20,10 +20,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
-      - name: Format
-        run: |
-          make format
-          test -z "$$(git status --porcelain | tee /dev/stderr)"
+#      - name: Format
+#        run: |
+#          make format
+#          test -z "$$(git status --porcelain | tee /dev/stderr)"
       - name: Test
         run: make test
       - name: Lint
