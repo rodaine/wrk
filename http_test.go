@@ -35,7 +35,7 @@ func TestHTTPServer(t *testing.T) {
 
 		w := &HTTPServer{
 			OverrideBaseContext: true,
-			Server: &http.Server{
+			Server: &http.Server{ //nolint:gosec // fine for a test
 				Addr: addr,
 				Handler: http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 					val := req.Context().Value("foo")
@@ -45,7 +45,7 @@ func TestHTTPServer(t *testing.T) {
 			},
 		}
 
-		ctx := context.WithValue(context.Background(), "foo", "bar")
+		ctx := context.WithValue(context.Background(), "foo", "bar") //nolint:revive, staticcheck // fine for a test
 
 		done := make(chan error, 1)
 		go func() {
@@ -53,10 +53,11 @@ func TestHTTPServer(t *testing.T) {
 		}()
 		defer func() {
 			err := w.Stop()
-			assert.NoError(t, err)
+			require.NoError(t, err)
+			require.NoError(t, <-done)
 		}()
 
-		res, err := http.Get("http://" + addr)
+		res, err := http.Get("http://" + addr) //nolint:noctx // fine for a test
 		require.NoError(t, err)
 		defer func() { _ = res.Body.Close() }()
 		assert.Equal(t, http.StatusTeapot, res.StatusCode)
@@ -64,14 +65,14 @@ func TestHTTPServer(t *testing.T) {
 
 	t.Run("stop without start", func(t *testing.T) {
 		t.Parallel()
-		w := &HTTPServer{Server: &http.Server{Addr: ":0"}}
+		w := &HTTPServer{Server: &http.Server{Addr: ":0"}} //nolint:gosec // fine for a test
 		assert.NoError(t, w.Stop())
 	})
 
 	t.Run("listen error", func(t *testing.T) {
 		t.Parallel()
 
-		w := &HTTPServer{Server: &http.Server{Addr: "foo:bar"}}
+		w := &HTTPServer{Server: &http.Server{Addr: "foo:bar"}} //nolint:gosec // test code is OK
 		assert.Error(t, w.Run(context.Background()))
 	})
 }

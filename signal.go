@@ -16,6 +16,7 @@ import (
 // See signal.Notify for documentation on the signal capture behavior.
 type Signals []os.Signal
 
+// Run satisfies the [Worker] interface.
 func (s Signals) Run(ctx context.Context) error {
 	notify := make(chan os.Signal, 1)
 	signal.Notify(notify, s...)

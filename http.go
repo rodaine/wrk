@@ -9,22 +9,24 @@ import (
 	"time"
 )
 
+// DefaultHTTPStopTimeout is the default grace period used when stopping an
+// [HTTPServer].
 const DefaultHTTPStopTimeout = 5 * time.Second
 
-// HTTPServer executes an http.Server, stopping it gracefully via its Shutdown
+// HTTPServer executes an [http.Server], stopping it gracefully via its Shutdown
 // method.
 type HTTPServer struct {
-	// Server is the http.Server instance that will be run. If nil, the default,
-	// zero-value server will be executed instead. See the http.Server
+	// Server is the [http.Server] instance that will be run. If nil, the default,
+	// zero-value server will be executed instead. See the [http.Server]
 	// documentation details on the default behavior.
 	Server *http.Server
 
 	// StopTimeout is the grace-period allowed for the graceful shutdown of the
-	// Server to complete. If zero, the DefaultHTTPStopTimeout value is used.
+	// Server to complete. If zero, the [DefaultHTTPStopTimeout] value is used.
 	StopTimeout time.Duration
 
 	// If OverrideBaseContext is true, the base context attached to the
-	// http.Request's handled by the Server are replaced with the context
+	// [http.Request]'s handled by the Server is replaced with the context
 	// passed to Run. Note, this means all in-flight requests will have their
 	// context canceled during graceful shutdown
 	OverrideBaseContext bool
@@ -32,14 +34,7 @@ type HTTPServer struct {
 	once sync.Once
 }
 
-func (srv *HTTPServer) init() {
-	srv.once.Do(func() {
-		if srv.Server == nil {
-			srv.Server = &http.Server{}
-		}
-	})
-}
-
+// Run satisfies [Worker] interface.
 func (srv *HTTPServer) Run(ctx context.Context) error {
 	srv.init()
 
@@ -57,6 +52,7 @@ func (srv *HTTPServer) Run(ctx context.Context) error {
 	return nil
 }
 
+// Stop satisfies [WorkStopper] interface.
 func (srv *HTTPServer) Stop() error {
 	srv.init()
 
@@ -69,6 +65,14 @@ func (srv *HTTPServer) Stop() error {
 	defer cancel()
 
 	return srv.Server.Shutdown(ctx)
+}
+
+func (srv *HTTPServer) init() {
+	srv.once.Do(func() {
+		if srv.Server == nil {
+			srv.Server = &http.Server{} //nolint:gosec // intentionally using an unconfigured server.
+		}
+	})
 }
 
 var _ WorkStopper = (*HTTPServer)(nil)

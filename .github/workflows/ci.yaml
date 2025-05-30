@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: { }
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version:
+          - oldstable
+          - stable
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Format
+        run: |
+          make format
+          test -z "$$(git status --porcelain | tee /dev/stderr)"
+      - name: Test
+        run: make test
+      - name: Lint
+        run: make lint

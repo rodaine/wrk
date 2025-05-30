@@ -6,16 +6,16 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// Worker describes a long-running process that's executed concurrently with
-// other workers within an application. Some examples of workers would be a web
-// server (e.g., HTTPServer) or a daemon listening on a data stream.
+// Worker describes a long-running process executed concurrently with other
+// workers within an application. Some examples of workers would be a web server
+// (e.g., HTTPServer) or a daemon listening on a data stream.
 type Worker interface {
 	// Run should be a blocking operation that continues to execute until ctx
 	// is canceled. Run should return an error only if the operation did not
 	// exit intentionally (i.e., http.ErrServerClosed should be converted to
 	// nil).
 	//
-	// If the work cannot be cancelled directly via the ctx (e.g.,
+	// If the work cannot be canceled directly via the ctx (e.g.,
 	// http.ListenAndServe) or resources need to be cleaned up out-of-band, a
 	// Stop function should be provided. See WorkStopper for the appropriate
 	// interface.
@@ -25,6 +25,7 @@ type Worker interface {
 // WorkerFunc is a Worker defined as just by just its Run method.
 type WorkerFunc func(ctx context.Context) error
 
+// Run satisfies the [Worker] interface.
 func (w WorkerFunc) Run(ctx context.Context) error { return w(ctx) }
 
 // A WorkStopper is a Worker that needs to be shutdown from an external
