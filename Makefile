@@ -21,10 +21,6 @@ all: format lint test
 .PHONY: format
 format: $(GOLANGCI_LINT)
 	$(GOLANGCI_LINT) fmt $(GO_MODS)
-	for mod in $(foreach mod,$(GO_MODS),$(abspath $(mod))); do \
-		cd $$mod; \
-		$(GO) mod tidy; \
-	done
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT)
