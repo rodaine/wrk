@@ -24,7 +24,3 @@ jobs:
         run: make test
       - name: Lint
         run: make lint
-      - name: Format
-        run: |
-          make format
-          test -z "$$(git status --porcelain | tee /dev/stderr)"
