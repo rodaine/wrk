@@ -1,3 +1,4 @@
+// Package grpc provides a wrk.WorkStopper implementation for gRPC servers.
 package grpc
 
 import (
@@ -7,11 +8,14 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+
+	"github.com/rodaine/wrk"
 )
 
-const DefaultStopTimeout = 5 * time.Second
+// DefaultStopTimeout is the default grace period used when stopping a [Server].
+const DefaultStopTimeout = wrk.DefaultHTTPStopTimeout
 
-var noServerErr = errors.New("gRPC server must be set")
+var errNoServer = errors.New("gRPC server must be set")
 
 // Server is a wrk.WorkStopper responsible for running a grpc.Server, stopping
 // it via its GracefulStop method.
@@ -27,9 +31,10 @@ type Server struct {
 	StopTimeout time.Duration
 }
 
+// Run satisfies the [wrk.Worker] interface.
 func (srv Server) Run(context.Context) error {
 	if srv.Server == nil {
-		return noServerErr
+		return errNoServer
 	}
 
 	lis, err := net.Listen("tcp", srv.Addr)
@@ -40,11 +45,11 @@ func (srv Server) Run(context.Context) error {
 	return srv.Server.Serve(lis)
 }
 
-// Stop satisfies the wrk.WorkStopper interface. Note that if this method
+// Stop satisfies the [wrk.WorkStopper] interface. Note that if this method
 // returns an error, the gRPC server may still be running.
 func (srv Server) Stop() error {
 	if srv.Server == nil {
-		return noServerErr
+		return errNoServer
 	}
 
 	done := make(chan struct{})
@@ -66,3 +71,5 @@ func (srv Server) Stop() error {
 		return nil
 	}
 }
+
+var _ wrk.WorkStopper = (*Server)(nil)

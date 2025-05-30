@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWork(t *testing.T) {
@@ -83,7 +84,7 @@ func TestWork(t *testing.T) {
 
 		select {
 		case err := <-done:
-			assert.ErrorIs(t, err, context.Canceled)
+			require.ErrorIs(t, err, context.Canceled)
 		case <-time.After(time.Second):
 			t.Fatal("worker should have stopped")
 		}

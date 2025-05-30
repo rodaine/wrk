@@ -15,6 +15,19 @@ type Named struct {
 	Delegate Worker
 }
 
+// Run satisfies the [Worker] interface.
+func (n Named) Run(ctx context.Context) error {
+	return n.wrap(n.Delegate.Run(ctx))
+}
+
+// Stop satisfies the [WorkStopper] interface.
+func (n Named) Stop() error {
+	if ws, ok := n.Delegate.(WorkStopper); ok {
+		return n.wrap(ws.Stop())
+	}
+	return nil
+}
+
 func (n Named) wrap(err error) error {
 	if err == nil {
 		return nil
@@ -25,18 +38,7 @@ func (n Named) wrap(err error) error {
 	}
 }
 
-func (n Named) Run(ctx context.Context) error {
-	return n.wrap(n.Delegate.Run(ctx))
-}
-
-func (n Named) Stop() error {
-	if ws, ok := n.Delegate.(WorkStopper); ok {
-		return n.wrap(ws.Stop())
-	}
-	return nil
-}
-
-// NamedError is the wrapped error returned by Named
+// NamedError is the wrapped error returned by Named.
 type NamedError struct {
 	Name string
 	Err  error

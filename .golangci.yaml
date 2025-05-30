@@ -1,0 +1,50 @@
+version: "2"
+output:
+  sort-order:
+    - file
+    - severity
+    - linter
+linters:
+  default: all
+  disable:
+    - err113
+    - exhaustive
+    - exhaustruct
+    - ireturn
+    - nlreturn
+    - nonamedreturns
+    - testpackage
+    - wrapcheck
+    - wsl
+  settings:
+    depguard:
+      rules:
+        main:
+          files:
+            - $all
+          deny:
+            - pkg: math/rand$
+              desc: use math/rand/v2
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
+  exclusions:
+    generated: lax
+    rules:
+      - linters:
+          - funlen
+          - varnamelen
+        path: _test\.go$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/rodaine/wrk
+  exclusions:
+    generated: lax

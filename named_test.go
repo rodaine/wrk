@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNamed_Run(t *testing.T) {
@@ -26,9 +27,9 @@ func TestNamed_Run(t *testing.T) {
 		out := w.Run(context.Background())
 
 		var ne NamedError
-		assert.ErrorAs(t, out, &ne)
+		require.ErrorAs(t, out, &ne)
 		assert.Equal(t, w.Name, ne.Name)
-		assert.ErrorIs(t, ne.Err, err)
+		require.ErrorIs(t, ne.Err, err)
 	})
 
 	t.Run("no error", func(t *testing.T) {
@@ -43,7 +44,7 @@ func TestNamed_Run(t *testing.T) {
 		}
 
 		out := w.Run(context.Background())
-		assert.NoError(t, out)
+		require.NoError(t, out)
 	})
 }
 
@@ -51,7 +52,7 @@ func TestNamed_Stop(t *testing.T) {
 	t.Parallel()
 
 	t.Run("stop error", func(t *testing.T) {
-
+		t.Parallel()
 		err := errors.New("some error")
 		stopErr := make(chan error, 1)
 		stopErr <- err
@@ -64,9 +65,9 @@ func TestNamed_Stop(t *testing.T) {
 		out := w.Stop()
 
 		var ne NamedError
-		assert.ErrorAs(t, out, &ne)
+		require.ErrorAs(t, out, &ne)
 		assert.Equal(t, w.Name, ne.Name)
-		assert.ErrorIs(t, ne.Err, err)
+		require.ErrorIs(t, ne.Err, err)
 		assert.Contains(t, ne.Error(), "foo")
 		assert.Equal(t, err, ne.Unwrap())
 	})
@@ -76,6 +77,6 @@ func TestNamed_Stop(t *testing.T) {
 
 		w := Named{Name: "foo", Delegate: MockWorker(nil)}
 		err := w.Stop()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 }
