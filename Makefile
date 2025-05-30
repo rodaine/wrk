@@ -25,7 +25,6 @@ format: $(GOLANGCI_LINT)
 		cd $$mod; \
 		$(GO) mod tidy; \
 	done
-	$(GO) work sync
 
 .PHONY: lint
 lint: $(GOLANGCI_LINT)
