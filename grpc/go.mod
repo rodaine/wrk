@@ -3,7 +3,7 @@ module github.com/rodaine/wrk/grpc
 go 1.23.9
 
 require (
-	github.com/rodaine/wrk v0.0.0-20250417153555-9aa7390143dd
+	github.com/rodaine/wrk v0.1.0
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.72.2
 )
