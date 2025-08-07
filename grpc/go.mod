@@ -5,7 +5,7 @@ go 1.23.9
 require (
 	github.com/rodaine/wrk v0.1.0
 	github.com/stretchr/testify v1.10.0
-	google.golang.org/grpc v1.73.0
+	google.golang.org/grpc v1.74.2
 )
 
 require (
