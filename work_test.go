@@ -17,7 +17,7 @@ func TestWork(t *testing.T) {
 
 	t.Run("nothing", func(t *testing.T) {
 		t.Parallel()
-		err := Work(context.Background())
+		err := Work(t.Context())
 		assert.NoError(t, err)
 	})
 
@@ -28,7 +28,7 @@ func TestWork(t *testing.T) {
 		w1 := MockWorkStopper{MockWorker: mw, StopErr: noErrs}
 		w2 := MockWorkStopper{MockWorker: mw, StopErr: noErrs}
 
-		err := Work(context.Background(), w1, w2)
+		err := Work(t.Context(), w1, w2)
 		assert.NoError(t, err)
 	})
 
@@ -38,7 +38,7 @@ func TestWork(t *testing.T) {
 		w1 := MockWorkStopper{StopErr: noErrs}
 		w2 := MockWorkStopper{StopErr: noErrs}
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel()
 
 		err := Work(ctx, w1, w2)
@@ -54,7 +54,7 @@ func TestWork(t *testing.T) {
 			StopErr:    make(chan error),
 		}
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()
 
 		done := make(chan error, 1)

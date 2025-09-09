@@ -20,7 +20,7 @@ func TestSignals_Run(t *testing.T) { //nolint:tparallel // subtests cannot be pa
 
 		go func() {
 			close(ready)
-			done <- w.Run(context.Background())
+			done <- w.Run(t.Context())
 		}()
 
 		<-ready
@@ -40,7 +40,7 @@ func TestSignals_Run(t *testing.T) { //nolint:tparallel // subtests cannot be pa
 	t.Run("canceled", func(t *testing.T) { //nolint:paralleltest // cannot be parallel since we are sending a real signal.
 		w := Signals{syscall.SIGHUP}
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel()
 
 		err := w.Run(ctx)

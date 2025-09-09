@@ -18,7 +18,7 @@ func TestHTTPServer(t *testing.T) {
 		w := &HTTPServer{}
 		done := make(chan error, 1)
 		go func() {
-			done <- w.Run(context.Background())
+			done <- w.Run(t.Context())
 		}()
 
 		err := w.Stop()
@@ -45,7 +45,7 @@ func TestHTTPServer(t *testing.T) {
 			},
 		}
 
-		ctx := context.WithValue(context.Background(), "foo", "bar") //nolint:revive, staticcheck // fine for a test
+		ctx := context.WithValue(t.Context(), "foo", "bar") //nolint:revive, staticcheck // fine for a test
 
 		done := make(chan error, 1)
 		go func() {
@@ -73,6 +73,6 @@ func TestHTTPServer(t *testing.T) {
 		t.Parallel()
 
 		w := &HTTPServer{Server: &http.Server{Addr: "foo:bar"}} //nolint:gosec // test code is OK
-		assert.Error(t, w.Run(context.Background()))
+		assert.Error(t, w.Run(t.Context()))
 	})
 }
