@@ -24,8 +24,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rodaine/wrk"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rodaine/wrk"
 )
 
 func main() {

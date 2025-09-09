@@ -1,7 +1,6 @@
 package wrk
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -24,7 +23,7 @@ func TestNamed_Run(t *testing.T) {
 			Delegate: del,
 		}
 
-		out := w.Run(context.Background())
+		out := w.Run(t.Context())
 
 		var ne NamedError
 		require.ErrorAs(t, out, &ne)
@@ -43,7 +42,7 @@ func TestNamed_Run(t *testing.T) {
 			Delegate: del,
 		}
 
-		out := w.Run(context.Background())
+		out := w.Run(t.Context())
 		require.NoError(t, out)
 	})
 }

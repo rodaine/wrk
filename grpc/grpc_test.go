@@ -1,7 +1,6 @@
 package grpc
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -18,7 +17,7 @@ func TestServer(t *testing.T) {
 		t.Parallel()
 
 		w := &Server{}
-		err := w.Run(context.Background())
+		err := w.Run(t.Context())
 		require.ErrorIs(t, err, errNoServer)
 		err = w.Stop()
 		require.ErrorIs(t, err, errNoServer)
@@ -40,7 +39,7 @@ func TestServer(t *testing.T) {
 
 		done := make(chan error, 1)
 		go func() {
-			done <- w.Run(context.Background())
+			done <- w.Run(t.Context())
 		}()
 		defer func() {
 			err := w.Stop()
@@ -53,7 +52,7 @@ func TestServer(t *testing.T) {
 		require.NoError(t, err)
 		defer func() { _ = conn.Close() }()
 		resp, err := grpc_health_v1.NewHealthClient(conn).Check(
-			context.Background(),
+			t.Context(),
 			&grpc_health_v1.HealthCheckRequest{Service: "foo"},
 		)
 		require.NoError(t, err)
@@ -75,6 +74,6 @@ func TestServer(t *testing.T) {
 			Server: grpc.NewServer(grpc.Creds(insecure.NewCredentials())),
 			Addr:   "foo:bar",
 		}
-		require.Error(t, w.Run(context.Background()))
+		require.Error(t, w.Run(t.Context()))
 	})
 }
