@@ -13,10 +13,10 @@ import (
 // [HTTPServer].
 const DefaultHTTPStopTimeout = 5 * time.Second
 
-// HTTPServer executes an [http.Server], stopping it gracefully via its Shutdown
-// method.
+// HTTPServer is a [WorkStopper] that executes an [http.Server], stopping it
+// gracefully via its Shutdown method.
 type HTTPServer struct {
-	// Server is the [http.Server] instance that will be run. If nil, the default,
+	// Server is the [http.Server] instance that will be run. If nil, the
 	// zero-value server will be executed instead. See the [http.Server]
 	// documentation details on the default behavior.
 	Server *http.Server
@@ -27,9 +27,15 @@ type HTTPServer struct {
 
 	// If OverrideBaseContext is true, the base context attached to the
 	// [http.Request]'s handled by the Server is replaced with the context
-	// passed to Run. Note, this means all in-flight requests will have their
-	// context canceled during graceful shutdown
+	// passed to Run. Note: this means all in-flight requests will have their
+	// context canceled during a graceful shutdown unless WithoutCancelBaseContext
+	// is also true.
 	OverrideBaseContext bool
+
+	// If WithoutCancelBaseContext and OverrideBaseContext are both true, the
+	// base context attached to the [http.Request]'s handled by the Server will
+	// not be canceled during a graceful shutdown.
+	WithoutCancelBaseContext bool
 
 	once sync.Once
 }
@@ -39,8 +45,12 @@ func (srv *HTTPServer) Run(ctx context.Context) error {
 	srv.init()
 
 	if srv.OverrideBaseContext {
+		baseCtx := ctx
+		if srv.WithoutCancelBaseContext {
+			baseCtx = context.WithoutCancel(baseCtx)
+		}
 		srv.Server.BaseContext = func(net.Listener) context.Context {
-			return ctx
+			return baseCtx
 		}
 	}
 
