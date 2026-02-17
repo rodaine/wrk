@@ -1,3 +1,7 @@
+// Package wrk is a utility for running multiple workers, such as web-servers
+// (HTTP/gRPC/etc) as well as daemon-style goroutines in a coordinated
+// fashion. On any errors, all workers are gracefully stopped either through
+// context-cancellation or by executing a worker's defined Stop function.
 package wrk
 
 import (
@@ -53,13 +57,11 @@ func noopCancel() {}
 func Work(ctx context.Context, workers ...Worker) error {
 	grp, ctx := errgroup.WithContext(ctx)
 
-	for _, w := range workers {
-		wrk := w
+	for _, wrk := range workers {
 		wCtx, wCancel := ctx, noopCancel
 
 		if ws, ok := wrk.(WorkStopper); ok {
 			wCtx, wCancel = context.WithCancel(ctx)
-
 			grp.Go(func() error {
 				<-wCtx.Done()
 				return ws.Stop()

@@ -95,6 +95,7 @@ type MockWorker chan error
 
 type MockWorkStopper struct {
 	MockWorker
+
 	StopErr chan error
 }
 

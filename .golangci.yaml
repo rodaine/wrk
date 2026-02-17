@@ -16,6 +16,7 @@ linters:
     - testpackage
     - wrapcheck
     - wsl
+    - wsl_v5
   settings:
     depguard:
       rules:

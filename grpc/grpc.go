@@ -1,7 +1,8 @@
-// Package grpc provides a wrk.WorkStopper implementation for gRPC servers.
+// Package grpc provides a [wrk.WorkStopper] implementation for gRPC servers.
 package grpc
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"net"
@@ -17,7 +18,7 @@ const DefaultStopTimeout = wrk.DefaultHTTPStopTimeout
 
 var errNoServer = errors.New("gRPC server must be set")
 
-// Server is a wrk.WorkStopper responsible for running a grpc.Server, stopping
+// Server is a [wrk.WorkStopper] responsible for running a [grpc.Server], stopping
 // it via its GracefulStop method.
 type Server struct {
 	// Server is the grpc.Server to run. This field must be non-nil.
@@ -32,12 +33,12 @@ type Server struct {
 }
 
 // Run satisfies the [wrk.Worker] interface.
-func (srv Server) Run(context.Context) error {
+func (srv Server) Run(ctx context.Context) error {
 	if srv.Server == nil {
 		return errNoServer
 	}
 
-	lis, err := net.Listen("tcp", srv.Addr)
+	lis, err := new(net.ListenConfig).Listen(ctx, "tcp", srv.Addr)
 	if err != nil {
 		return err
 	}
@@ -59,11 +60,7 @@ func (srv Server) Stop() error {
 		srv.Server.GracefulStop()
 	}()
 
-	timeout := srv.StopTimeout
-	if timeout == 0 {
-		timeout = DefaultStopTimeout
-	}
-
+	timeout := cmp.Or(srv.StopTimeout, DefaultStopTimeout)
 	select {
 	case <-time.After(timeout):
 		return context.DeadlineExceeded
