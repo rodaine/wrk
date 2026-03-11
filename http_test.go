@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -57,10 +58,15 @@ func TestHTTPServer(t *testing.T) {
 			require.NoError(t, <-done)
 		}()
 
-		res, err := http.Get("http://" + addr) //nolint:noctx // fine for a test
-		require.NoError(t, err)
-		defer func() { _ = res.Body.Close() }()
-		assert.Equal(t, http.StatusTeapot, res.StatusCode)
+		// Poll until the server is accepting connections.
+		require.EventuallyWithT(t, func(ct *assert.CollectT) {
+			res, err := http.Get("http://" + addr) //nolint:noctx // fine for a test
+			if !assert.NoError(ct, err) {
+				return
+			}
+			defer func() { _ = res.Body.Close() }()
+			assert.Equal(ct, http.StatusTeapot, res.StatusCode)
+		}, 2*time.Second, 10*time.Millisecond)
 	})
 
 	t.Run("stop without start", func(t *testing.T) {
